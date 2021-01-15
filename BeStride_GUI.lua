@@ -28,6 +28,7 @@ function BeStride_GUI:Open(defaultTab)
 		{text = BeStride_Locale.GUI.TAB.Mounts .. " (" .. #mountTable["ground"] + #mountTable["flying"] + #mountTable["swimming"]   .. ")", value="mounts"},
 		{text = BeStride_Locale.GUI.TAB.MountOptions, value="mountoptions"},
 		{text = BeStride_Locale.GUI.TAB.ClassOptions, value="classoptions"},
+		{text = BeStride_Locale.GUI.TAB.RaceOptions, value="raceoptions"},
 		{text = BeStride_Locale.GUI.TAB.Keybinds, value="keybinds"},
 		{text = BeStride_Locale.GUI.TAB.Profile, value="profile"},
 		{text = BeStride_Locale.GUI.TAB.About, value="about"}
@@ -46,7 +47,7 @@ function BeStride_GUI:Open(defaultTab)
 	tabs:SetTabs(frameTabs)
 	tabs:SetCallback("OnGroupSelected", function (container, event, group ) BeStride_GUI:SelectTab(container, event, group) end )
 	
-	if defaultTab ~= nil and ( defaultTab == "mounts" or defaultTab == "mountoptions" or defaultTab == "classoptions" or defaultTab == "keybinds" or defaultTab == "profile" or defaultTab == "about" ) then
+	if defaultTab ~= nil and ( defaultTab == "mounts" or defaultTab == "mountoptions" or defaultTab == "classoptions" or defaultTab == "raceoptions" or defaultTab == "keybinds" or defaultTab == "profile" or defaultTab == "about" ) then
 		tabs:SelectTab(defaultTab)
 	else
 		tabs:SelectTab("mounts")
@@ -81,6 +82,8 @@ function BeStride_GUI:SelectTab(container, event, group)
 		BeStride_GUI:DrawMountOptionTab(container)
 	elseif group == "classoptions" then
 		BeStride_GUI:DrawClassOptionTab(container)
+	elseif group == "raceoptions" then
+		BeStride_GUI:DrawRaceOptionTab(container)
 	elseif group == "keybinds" then
 		BeStride_GUI:DrawKeybindsTab(container)
 	elseif group == "profile" then
@@ -341,6 +344,37 @@ function BeStride_GUI:DrawClassOptionTab(container)
 					element = self:CreateSettingSlider(setting.name,setting.label,setting.minDurability,setting.maxDurability,setting.increment,setting.depends, setting.dependants)
 				end
 				
+				if element ~= nil then
+					scroll:AddChild(element)
+				end
+			end
+		--end
+	end)
+end
+
+function BeStride_GUI:DrawRaceOptionTab(container)
+	container:SetLayout("Fill")
+
+	local scrollcontainer = AceGUI:Create("SimpleGroup")
+	scrollcontainer:SetFullWidth(true)
+	scrollcontainer:SetFullHeight(true)
+	scrollcontainer:SetLayout("Fill")
+	container:AddChild(scrollcontainer)
+
+	local scroll = AceGUI:Create("ScrollFrame")
+	scroll:SetLayout("Flow")
+	scrollcontainer:AddChild(scroll)
+
+	table.foreach(BeStride_Variables.Settings.Races,function (key,raceSetting)
+		--if tolower(race) == tolower(playerTable["race"]["name"])
+			for name,setting in pairs(raceSetting) do
+
+				if setting.element == "CheckBox" then
+					element = self:CreateSettingCheckBox(setting.name,setting.label,setting.depends, setting.dependants)
+				elseif setting.element == "Slider" then
+					element = self:CreateSettingSlider(setting.name,setting.label,setting.minDurability,setting.maxDurability,setting.increment,setting.depends, setting.dependants)
+				end
+
 				if element ~= nil then
 					scroll:AddChild(element)
 				end

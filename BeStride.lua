@@ -101,6 +101,8 @@ function BeStride:OnEnable()
 	BeStride:RegisterEvent("PLAYER_REGEN_DISABLED", "EventCombatEnter")
 	BeStride:RegisterEvent("PLAYER_REGEN_ENABLED", "EventCombatExit")
 	
+	BeStride:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", "EventSpellCastSucceeded")
+
 	BeStride:Upgrade()
 end
 

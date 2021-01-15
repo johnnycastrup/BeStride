@@ -15,6 +15,7 @@ BeStride_Locale = {
 			Mounts = "Mounts",
 			MountOptions = "Mount Options",
 			ClassOptions = "Class Options",
+			RaceOptions = "Race Options",
 			Keybinds = "Keybinds",
 			Profile = "Profiles",
 			About = "About",
@@ -171,6 +172,13 @@ BeStride_Locale = {
 			Shaman = {
 				GhostWolf = "Shaman: Ghost Wolf"
 			}
+		},
+		Races = {
+			Worgen = {
+				Darkflight = "Worgen: Darkflight",
+				TwoForms = "Worgen: Transform into human form when mounting from worgen form",
+				RunningWild = "Worgen: Prefer Running Wild when mounting over all other mounts (overrides above setting)",
+			},
 		},
 		Profiles = {
 			CreateNew = "Create new Profile:",

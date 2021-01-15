@@ -15,6 +15,11 @@ function BeStride_Mount:DoMount(mounts)
 	local mount = mounts[math.random(#mounts)]
 	local spell = mountTable["master"][mount]["spellID"]
 	local name = GetSpellInfo(spell)
+
+	if BeStride_Logic:WorgenCanTwoForms() then
+		-- Prepend Two Forms cast to the mount use macro string before passing it back to be run
+		return BeStride_Mount:WorgenTwoForms() .. "\n" .. BeStride_Mount:Mount(name)
+	end
 	return BeStride_Mount:Mount(name)
 end
 
@@ -297,4 +302,21 @@ end
 
 function BeStride_Mount:RogueSprint()
 	return self:MountSpell("[@player] "..BeStride:SpellToName(2983))
+end
+
+function BeStride_Mount:WorgenDarkflight()
+	return self:MountSpell(BeStride:SpellToName(BeStride_Constants.spells.worgen.darkflight))
+end
+
+function BeStride_Mount:WorgenRunningWild()
+	return self:MountSpell(BeStride:SpellToName(BeStride_Constants.spells.worgen.runningwild))
+end
+
+function BeStride_Mount:WorgenTwoForms()
+	-- If we are in worgen form, toggle it off
+	if playerStatus.worgenform == true then
+		return self:MountSpell(BeStride:SpellToName(BeStride_Constants.spells.worgen.twoforms))
+	else
+		return ""
+	end
 end

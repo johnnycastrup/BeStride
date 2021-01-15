@@ -14,7 +14,7 @@
 ## X-Embeds: Ace3
 ## X-Curse-Project-ID: 289821
 
-## SavedVariables: BeStrideDB, BestrideDB
+## SavedVariables: BeStrideDB, BestrideDB, playerStatus
 ## OptionalDeps: Ace3
 
 BeStride_Debug.lua

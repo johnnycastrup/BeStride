@@ -21,6 +21,11 @@ BeStride_Constants = {
 		hunter = {
 			aspectofthecheetah = 186257,
 		},
+		worgen = {
+			darkflight = 68992,
+			runningwild = 87840,
+			twoforms = 68996,
+		},
 	},
 	Zone = {
 		Vashjir = {

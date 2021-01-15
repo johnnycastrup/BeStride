@@ -15,6 +15,10 @@ function BeStride_Logic:Regular()
 	-- Aspect of the Cheetah is available from level 5
 	if self:IsHunterAndSpecial() then
 		return self:Hunter()
+	-- Worgen get Darkflight during the starter campaign, before riding skill
+	elseif self:IsWorgenAndSpecial() then
+		self:DismountAndExit()
+		return BeStride_Mount:WorgenDarkflight()
 	-- Check if we are mounted
 	elseif IsMounted() and self:NeedsChauffeur() then
 		self:DismountAndExit()
@@ -120,6 +124,8 @@ function BeStride_Logic:Regular()
 		return BeStride_Mount:Flying()
 	elseif IsOutdoors() and IsInGroup() == true and BeStride:DBGet("settings.mount.prioritizepassenger") == true then
 		return BeStride_Mount:Passenger("ground")
+	elseif ((self:IsMountable() and not self:IsFlyable()) or IsOutdoors()) and self:WorgenRunningWild() then
+		return BeStride_Mount:WorgenRunningWild()
 	elseif self:IsMountable() then
 		return BeStride_Mount:Regular()
 	elseif IsOutdoors() then
@@ -135,6 +141,10 @@ function BeStride_Logic:GroundMountButton()
 	-- Aspect of the Cheetah is available from level 5
 	if self:IsHunterAndSpecial() then
 		return self:Hunter()
+	-- Worgen get Darkflight during the starter campaign, before riding skill
+	elseif self:IsWorgenAndSpecial() then
+		self:DismountAndExit()
+		return BeStride_Mount:WorgenDarkflight()
 	-- Check if we are mounted
 	elseif IsMounted() and self:NeedsChauffeur() then
 		self:DismountAndExit()
@@ -202,6 +212,8 @@ function BeStride_Logic:GroundMountButton()
 	elseif IsSwimming() and IsOutdoors() and BeStride:DBGet("settings.mount.noswimming") == false then
 		self:DismountAndExit()
 		return BeStride_Mount:Swimming()
+	elseif IsOutdoors() and self:WorgenRunningWild() then
+		return BeStride_Mount:WorgenRunningWild()
 	elseif IsOutdoors() then
 		return BeStride_Mount:Ground()
 	else
@@ -260,6 +272,8 @@ function BeStride_Logic:Combat()
 		return BeStride_Mount:RogueSprint()
 	elseif self:IsShaman() and BeStride:DBGet("settings.classes.shaman.ghostwolf") then
 		return BeStride_Mount:ShamanGhostWolf()
+	elseif self:IsWorgen() and self:WorgenDarkflight() then
+		return BeStride_Mount:WorgenDarkflight()
 	elseif self:IsSpecialZone() then
 		return BeStride_Mount:SpecialZone()
 	end
@@ -342,7 +356,7 @@ end
 
 function BeStride_Logic:IsHunterAndSpecial()
 	if self:IsHunter() and BeStride:DBGet("settings.classes.hunter.aspectofthecheetah") then
-		if self:MovementCheck() and self:HunterCanAspectOfTheCheetah() then
+		if (self:IsCombat() or self:MovementCheck()) and self:HunterCanAspectOfTheCheetah() then
 			return true
 		end
 	end
@@ -438,6 +452,16 @@ function BeStride_Logic:IsShamanAndSpecial()
 		else
 			return false
 		end
+	else
+		return false
+	end
+end
+
+function BeStride_Logic:IsWorgenAndSpecial()
+	if IsFlying() and self:NoDismountWhileFlying() then
+		return false
+	elseif self:IsWorgen() and (self:IsCombat() or self:MovementCheck()) then
+		return self:WorgenDarkflight()
 	else
 		return false
 	end
@@ -559,6 +583,27 @@ function BeStride_Logic:Rogue()
 	else
 		BeStride_Debug:Error("This is a error.  Please report to the maintainer at https://www.github.com/dansheps/bestride/issues/. ID: RGBSL")
 	end
+end
+
+function BeStride_Logic:Worgen()
+	if IsFlying() and self:NoDismountWhileFlying() then
+		return false
+	elseif self:IsWorgen() then
+		if (self:IsCombat()) then
+			if self:MovementCheck() then
+				return BeStride_Mount:WorgenDarkflight()
+			else
+				return BeStride_Mount:WorgenRunningWild()
+			end
+		else
+			if self:WorgenRunningWild() then
+				return BeStride_Mount:WorgenRunningWild()
+			elseif self:WorgenTwoForms() then
+				return BeStride_Mount:WorgenTwoForms()
+			end
+		end
+	end
+	return false
 end
 
 function BeStride_Logic:IsFlyableArea()
@@ -994,6 +1039,18 @@ function BeStride_Logic:IsShaman()
 	end
 end
 
+-- +----------+ --
+-- Race Checks --
+-- +----------+ --
+function BeStride_Logic:IsWorgen()
+	-- Check for Worgen
+	if playerTable["race"]["id"] == 22 then
+		return true
+	else
+		return false
+	end
+end
+
 -- +--------------------------+ --
 -- Class Specific Spells Checks --
 -- +--------------------------+ --
@@ -1190,6 +1247,44 @@ end
 
 function BeStride_Logic:RogueCanSprint()
 	if IsUsableSpell(2983) then
+		return true
+	else
+		return false
+	end
+end
+
+-- +--------------------------+ --
+-- Race Specific Spells Checks --
+-- +--------------------------+ --
+-- ------------ --
+-- Worgen Spells --
+-- ------------ --
+
+-- Check for Darkflight
+-- Returns: boolean
+function BeStride_Logic:WorgenCanDarkflight()
+	if IsUsableSpell(BeStride_Constants.spells.worgen.darkflight) then
+		return true
+	else
+		return false
+	end
+end
+
+-- Check for Running Wild
+-- Returns: boolean
+function BeStride_Logic:WorgenCanRunningWild()
+	if IsUsableSpell(BeStride_Constants.spells.worgen.runningwild) then
+		return true
+	else
+		return false
+	end
+end
+
+-- Check for Two Forms
+-- Returns: boolean
+function BeStride_Logic:WorgenCanTwoForms()
+	-- @todo test for whether Darkflight is active, as that prevents Two Forms
+	if IsUsableSpell(BeStride_Constants.spells.worgen.twoforms) and not self:HasBuff(BeStride_Constants.spells.worgen.darkflight) then
 		return true
 	else
 		return false
@@ -1463,6 +1558,25 @@ function BeStride_Logic:ShamanGhostWolf()
 	end
 end
 
+-- +-------------------------+ --
+-- Race Specific Mount Checks --
+-- +-------------------------+ --
+-- ----------- --
+-- Worgen --
+-- ----------- --
+
+function BeStride_Logic:WorgenDarkflight()
+	return (self:IsWorgen() and self:WorgenCanDarkflight() and BeStride:DBGet("settings.races.worgen.darkflight"))
+end
+
+function BeStride_Logic:WorgenRunningWild()
+	return (self:IsWorgen() and self:WorgenCanRunningWild() and BeStride:DBGet("settings.races.worgen.runningwild"))
+end
+
+function BeStride_Logic:WorgenTwoForms()
+	return (self:IsWorgen() and self:WorgenCanTwoForms() and BeStride:DBGet("settings.races.worgen.twoforms"))
+end
+
 function BeStride_Logic:GetRidingSkill()
 	local ridingSkillLevel = 0
 	local ridingSpells = {}
@@ -1482,4 +1596,17 @@ end
 
 function BeStride_Logic:WGActive()
 	return true
+end
+
+function BeStride_Logic:HasBuff(spell_id)
+	local buff_id
+	for i = 1, 40 do
+		_, _, _, _, _, _, _, _, _, buff_id = UnitAura("player", i, "HELPFUL|PLAYER")
+		if not buff_id then
+			break
+		elseif buff_id == spell_id then
+			return true
+		end
+	end
+	return false
 end

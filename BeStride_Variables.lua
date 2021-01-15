@@ -61,7 +61,14 @@ BeStride_Variables = {
 			{
 				{name="classes.shaman.ghostwolf",element="CheckBox",label=BeStride_Locale.Settings.Classes.Shaman.GhostWolf,class="shaman"},
 			},
-		}
+		},
+		Races = {
+			{
+				{name="races.worgen.darkflight", element="CheckBox",label=BeStride_Locale.Settings.Races.Worgen.Darkflight,race="worgen"},
+				{name="races.worgen.twoforms", element="CheckBox",label=BeStride_Locale.Settings.Races.Worgen.TwoForms,race="worgen"},
+				{name="races.worgen.runningwild", element="CheckBox",label=BeStride_Locale.Settings.Races.Worgen.RunningWild,race="worgen"},
+			},
+		},
 	},
 }
 
@@ -76,6 +83,12 @@ mountTable = {
 }
 
 playerTable = {}
+
+if (playerStatus == nil or playerStatus.worgenform == nil) then
+	playerStatus = {
+		worgenform = false,
+	}
+end
 
 BeStride_Options = {
   name="BeStride",
@@ -156,6 +169,13 @@ defaults = {
 				},
 				shaman = {
 					ghostwolf = true,
+				},
+			},
+			races = {
+				worgen = {
+					darkflight = true,
+					runningwild = false,
+					twoforms = false,
 				},
 			},
 		},
