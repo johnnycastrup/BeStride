@@ -26,6 +26,10 @@ BeStride_Constants = {
 			runningwild = 87840,
 			twoforms = 68996,
 		},
+		nightfae = {
+			soulshape = 310143,
+			flicker = 324701,
+		},
 	},
 	Zone = {
 		Vashjir = {

@@ -16,6 +16,7 @@ BeStride_Locale = {
 			MountOptions = "Mount Options",
 			ClassOptions = "Class Options",
 			RaceOptions = "Race Options",
+			CovenantOptions = "Covenant Options",
 			Keybinds = "Keybinds",
 			Profile = "Profiles",
 			About = "About",
@@ -178,6 +179,11 @@ BeStride_Locale = {
 				Darkflight = "Worgen: Darkflight",
 				TwoForms = "Worgen: Transform into human form when mounting from worgen form",
 				RunningWild = "Worgen: Prefer Running Wild when mounting over all other mounts (overrides above setting)",
+			},
+		},
+		Covenants = {
+			NightFae = {
+				Soulshape = "Night Fae: Soulshape",
 			},
 		},
 		Profiles = {

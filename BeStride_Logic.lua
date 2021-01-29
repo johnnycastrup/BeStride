@@ -12,13 +12,10 @@ function BeStride_Logic:IsCombat()
 end
 
 function BeStride_Logic:Regular()
-	-- Aspect of the Cheetah is available from level 5
-	if self:IsHunterAndSpecial() then
-		return self:Hunter()
-	-- Worgen get Darkflight during the starter campaign, before riding skill
-	elseif self:IsWorgenAndSpecial() then
-		self:DismountAndExit()
-		return BeStride_Mount:WorgenDarkflight()
+	-- Sometimes, although you're not in combat, you just want that speed boost,
+	-- without stopping to spend the cast time on a mount
+	if self:MovementCheck() then
+		return self:Combat()
 	-- Check if we are mounted
 	elseif IsMounted() and self:NeedsChauffeur() then
 		self:DismountAndExit()
@@ -138,13 +135,11 @@ end
 
 
 function BeStride_Logic:GroundMountButton()
-	-- Aspect of the Cheetah is available from level 5
-	if self:IsHunterAndSpecial() then
-		return self:Hunter()
-	-- Worgen get Darkflight during the starter campaign, before riding skill
-	elseif self:IsWorgenAndSpecial() then
-		self:DismountAndExit()
-		return BeStride_Mount:WorgenDarkflight()
+	-- Sometimes, although you're not in combat, you just want that speed boost,
+	-- without stopping to spend the cast time on a mount
+	-- @todo: How does this work with Druid? E.g. would they prefer to switch to flight form?
+	if self:MovementCheck() then
+		return self:Combat()
 	-- Check if we are mounted
 	elseif IsMounted() and self:NeedsChauffeur() then
 		self:DismountAndExit()
@@ -248,7 +243,9 @@ function BeStride_Logic:PassengerMountButton(type)
 end
 
 function BeStride_Logic:Combat()
-	if self:IsDeathKnight() and BeStride:DBGet("settings.classes.deathknight.wraithwalk") then
+	if self:NightFaeCanSoulshape() and BeStride:DBGet("settings.covenants.nightfae.soulshape") then
+		return BeStride_Mount:NightFaeSoulshape()
+	elseif self:IsDeathKnight() and BeStride:DBGet("settings.classes.deathknight.wraithwalk") then
 		return BeStride_Mount:DeathKnightWraithWalk()
 	elseif self:IsDemonHunter() and self:DemonHunterFelRush() then
 		return BeStride_Mount:DemonHunterFelRush()
@@ -462,6 +459,16 @@ function BeStride_Logic:IsWorgenAndSpecial()
 		return false
 	elseif self:IsWorgen() and (self:IsCombat() or self:MovementCheck()) then
 		return self:WorgenDarkflight()
+	else
+		return false
+	end
+end
+
+function BeStride_Logic:IsNightFaeAndSpecial()
+	if IsFlying() and self:NoDismountWhileFlying() then
+		return false
+	elseif self:IsCombat() or self:MovementCheck() then
+		return self:NightFaeSoulshape()
 	else
 		return false
 	end
@@ -1291,6 +1298,25 @@ function BeStride_Logic:WorgenCanTwoForms()
 	end
 end
 
+-- +-----------------------------+ --
+-- Covenant Specific Spells Checks --
+-- +-----------------------------+ --
+-- ---------------- --
+-- Night Fae Spells --
+-- ---------------- --
+function BeStride_Logic:NightFaeCanSoulshape()
+	if IsSpellKnown(BeStride_Constants.spells.nightfae.soulshape) and IsUsableSpell(BeStride_Constants.spells.nightfae.soulshape) then
+		local cooldown = GetSpellCooldown(BeStride_Constants.spells.nightfae.soulshape)
+		if cooldown == 0 then
+			return true
+		end
+	end
+	if self:HasBuff(BeStride_Constants.spells.nightfae.soulshape) then
+		return true
+	end
+	return false
+end
+
 -- +-------------------------+ --
 -- Class Specific Mount Checks --
 -- +-------------------------+ --
@@ -1575,6 +1601,20 @@ end
 
 function BeStride_Logic:WorgenTwoForms()
 	return (self:IsWorgen() and self:WorgenCanTwoForms() and BeStride:DBGet("settings.races.worgen.twoforms"))
+end
+
+-- +----------------------------+ --
+-- Covenant Specific Mount Checks --
+-- +----------------------------+ --
+-- --------- --
+-- Night Fae --
+-- --------- --
+function BeStride_Logic:NightFaeSoulshape()
+	if IsFlying() and self:NoDismountWhileFlying() then
+		return false
+	else
+		return (self:NightFaeCanSoulshape() and BeStride:DBGet("settings.covenants.nightfae.soulshape"))
+	end
 end
 
 function BeStride_Logic:GetRidingSkill()

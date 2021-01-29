@@ -69,6 +69,11 @@ BeStride_Variables = {
 				{name="races.worgen.runningwild", element="CheckBox",label=BeStride_Locale.Settings.Races.Worgen.RunningWild,race="worgen"},
 			},
 		},
+		Covenants = {
+			{
+				{name="covenants.nightfae.soulshape", element="CheckBox",label=BeStride_Locale.Settings.Covenants.NightFae.Soulshape,covenant="nightfae"},
+			},
+		},
 	},
 }
 
@@ -176,6 +181,11 @@ defaults = {
 					darkflight = true,
 					runningwild = false,
 					twoforms = false,
+				},
+			},
+			covenants = {
+				nightfae = {
+					soulshape = true,
 				},
 			},
 		},

@@ -320,3 +320,12 @@ function BeStride_Mount:WorgenTwoForms()
 		return ""
 	end
 end
+
+function BeStride_Mount:NightFaeSoulshape()
+	-- If already in Soulshape form cast Flicker, otherwise cast Soulshape
+	if BeStride_Logic:HasBuff(BeStride_Constants.spells.nightfae.soulshape) then
+		return self:MountSpell(BeStride:SpellToName(BeStride_Constants.spells.nightfae.flicker))
+	else
+		return self:MountSpell(BeStride:SpellToName(BeStride_Constants.spells.nightfae.soulshape))
+	end
+end
